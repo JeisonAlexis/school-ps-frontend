@@ -1,31 +1,46 @@
 import { fetchApi } from '@shared/api/apiClient';
 import type { ChessInventory } from '@/features/chess/model/types';
 
-const PIEZAS_PREFIX = '[PIEZAS:';
+const PIEZAS_REGEX = /^\[PIEZAS:(\d+)\]\s*/;
 
-function parsePiezasTotales(observacion: string | null): number {
-  if (!observacion?.startsWith(PIEZAS_PREFIX)) {
+function parsePiezasTotales(
+  observacion: string | null,
+): number {
+  if (!observacion) {
     return 32;
   }
-  try {
-    const parts = observacion.split(']', 2);
-    const numPart = parts[0].replace(PIEZAS_PREFIX, '').trim();
-    const parsed = Number(numPart);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : 32;
-  } catch {
+
+  const match = observacion.match(PIEZAS_REGEX);
+
+  if (!match) {
     return 32;
   }
+
+  const parsed = Number(match[1]);
+
+  return Number.isInteger(parsed) && parsed > 0
+    ? parsed
+    : 32;
 }
 
-function cleanObservacion(observacion: string | null): string | null {
-  if (!observacion?.startsWith(PIEZAS_PREFIX)) {
-    return observacion;
+function cleanObservacion(
+  observacion: string | null,
+): string | null {
+  if (!observacion) {
+    return null;
   }
-  const parts = observacion.split(']', 2);
-  return parts[1]?.trim() || null;
+
+  const cleaned = observacion
+    .replace(PIEZAS_REGEX, '')
+    .trim();
+
+  return cleaned || null;
 }
 
-export const getChessInventory = (page = 1, limit = 50) =>
+export const getChessInventory = (
+  page = 1,
+  limit = 50,
+) =>
   fetchApi<{
     statusCode: number;
     data: {
@@ -39,11 +54,20 @@ export const getChessInventory = (page = 1, limit = 50) =>
     };
     message: string;
     details: unknown;
-  }>(`/chess/items?page=${String(page)}&limit=${String(limit)}`).then((res) => ({
+  }>(
+    `/chess/items?page=${String(page)}&limit=${String(limit)}`,
+  ).then((res) => ({
     ...res.data,
+
     items: res.data.items.map((item) => ({
       ...item,
-      piezas_totales: parsePiezasTotales(item.observacion),
-      observacion: cleanObservacion(item.observacion),
+
+      piezas_totales: parsePiezasTotales(
+        item.observacion,
+      ),
+
+      observacion: cleanObservacion(
+        item.observacion,
+      ),
     })),
   }));

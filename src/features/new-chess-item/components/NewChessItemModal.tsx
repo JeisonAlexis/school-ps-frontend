@@ -2,12 +2,31 @@ import { Modal, Spinner } from '@/shared/ui';
 import { Button } from '@/shared/ui/atoms/Button';
 import { useNewChessItem } from '../hooks/useNewChessItem';
 import type { NewChessItemModalProps } from '../types';
+import type { ChessInventory } from '@/features/chess/model/types';
 
-export const NewChessItemModal = ({ isOpen, onClose, onSuccess }: NewChessItemModalProps) => {
-  const { fields, errors, loading, handleChange, handleSubmit, reset } = useNewChessItem(() => {
+interface Props extends NewChessItemModalProps {
+  editingItem?: ChessInventory | null;
+}
+
+export const NewChessItemModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  editingItem = null,
+}: Props) => {
+  const {
+    fields,
+    errors,
+    loading,
+    handleChange,
+    handleSubmit,
+    reset,
+  } = useNewChessItem(() => {
     onSuccess();
     onClose();
-  });
+  }, editingItem);
+
+  const isEditing = Boolean(editingItem);
 
   const handleClose = () => {
     reset();
@@ -15,7 +34,16 @@ export const NewChessItemModal = ({ isOpen, onClose, onSuccess }: NewChessItemMo
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Nuevo Artículo de Ajedrez" width={520}>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={
+        isEditing
+          ? 'Editar Artículo de Ajedrez'
+          : 'Nuevo Artículo de Ajedrez'
+      }
+      width={520}
+    >
       <form
         className="item-form"
         onSubmit={(e) => {
@@ -24,22 +52,31 @@ export const NewChessItemModal = ({ isOpen, onClose, onSuccess }: NewChessItemMo
         }}
         noValidate
       >
-        {errors.general && <div className="alert alert-error">{errors.general}</div>}
+        {errors.general && (
+          <div className="alert alert-error">
+            {errors.general}
+          </div>
+        )}
 
         <div className="form-group">
           <label className="form-label" htmlFor="if-nombre">
-            Nombre del tablero <span aria-hidden="true">*</span>
+            Nombre del tablero{' '}
+            <span aria-hidden="true">*</span>
           </label>
+
           <input
             id="if-nombre"
             type="text"
-            className={`form-input ${errors.nombre ? 'form-input--error' : ''}`}
+            className={`form-input ${
+              errors.nombre ? 'form-input--error' : ''
+            }`}
             placeholder="Ej: Tablero de ajedrez profesional"
             value={fields.nombre}
             onChange={(e) => {
               handleChange('nombre', e.target.value);
             }}
           />
+
           {errors.nombre && (
             <span className="field-error" role="alert">
               {errors.nombre}
@@ -49,20 +86,30 @@ export const NewChessItemModal = ({ isOpen, onClose, onSuccess }: NewChessItemMo
 
         <div className="form-group">
           <label className="form-label" htmlFor="if-cantidad">
-            Cantidad total <span aria-hidden="true">*</span>
+            Cantidad total{' '}
+            <span aria-hidden="true">*</span>
           </label>
+
           <input
             id="if-cantidad"
             type="number"
             min={1}
             step={1}
-            className={`form-input ${errors.cantidad_total ? 'form-input--error' : ''}`}
+            className={`form-input ${
+              errors.cantidad_total
+                ? 'form-input--error'
+                : ''
+            }`}
             placeholder="1"
             value={fields.cantidad_total}
             onChange={(e) => {
-              handleChange('cantidad_total', e.target.value);
+              handleChange(
+                'cantidad_total',
+                e.target.value,
+              );
             }}
           />
+
           {errors.cantidad_total && (
             <span className="field-error" role="alert">
               {errors.cantidad_total}
@@ -72,20 +119,30 @@ export const NewChessItemModal = ({ isOpen, onClose, onSuccess }: NewChessItemMo
 
         <div className="form-group">
           <label className="form-label" htmlFor="if-piezas">
-            Número de piezas <span aria-hidden="true">*</span>
+            Número de piezas{' '}
+            <span aria-hidden="true">*</span>
           </label>
+
           <input
             id="if-piezas"
             type="number"
             min={1}
             step={1}
-            className={`form-input ${errors.piezas_totales ? 'form-input--error' : ''}`}
+            className={`form-input ${
+              errors.piezas_totales
+                ? 'form-input--error'
+                : ''
+            }`}
             placeholder="32"
             value={fields.piezas_totales}
             onChange={(e) => {
-              handleChange('piezas_totales', e.target.value);
+              handleChange(
+                'piezas_totales',
+                e.target.value,
+              );
             }}
           />
+
           {errors.piezas_totales && (
             <span className="field-error" role="alert">
               {errors.piezas_totales}
@@ -97,6 +154,7 @@ export const NewChessItemModal = ({ isOpen, onClose, onSuccess }: NewChessItemMo
           <label className="form-label" htmlFor="if-observacion">
             Observación
           </label>
+
           <textarea
             id="if-observacion"
             className="form-textarea"
@@ -104,20 +162,38 @@ export const NewChessItemModal = ({ isOpen, onClose, onSuccess }: NewChessItemMo
             rows={3}
             value={fields.observacion}
             onChange={(e) => {
-              handleChange('observacion', e.target.value);
+              handleChange(
+                'observacion',
+                e.target.value,
+              );
             }}
           />
         </div>
 
         <div className="form-actions">
-          <Button type="button" variant="secondary" onClick={handleClose} disabled={loading}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleClose}
+            disabled={loading}
+          >
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={loading}>
+
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading}
+          >
             {loading ? (
               <>
-                <Spinner size={16} color="#fff" /> Guardando…
+                <Spinner size={16} color="#fff" />
+                {isEditing
+                  ? ' Guardando…'
+                  : ' Creando…'}
               </>
+            ) : isEditing ? (
+              'Guardar Cambios'
             ) : (
               'Crear Artículo'
             )}
