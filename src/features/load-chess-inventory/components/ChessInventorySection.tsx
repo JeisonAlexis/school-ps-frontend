@@ -8,6 +8,8 @@ interface Props {
   onSelectItem: (item: ChessInventory | null) => void;
   onNewLoan: () => void;
   onNewItem: () => void;
+  onEditItem: (item: ChessInventory) => void;
+  onDeleteItem: (item: ChessInventory) => void;
 }
 
 export const ChessInventorySection = ({
@@ -16,21 +18,48 @@ export const ChessInventorySection = ({
   onSelectItem,
   onNewLoan,
   onNewItem,
+  onEditItem,
+  onDeleteItem,
 }: Props) => (
   <div className="table-section">
     <div className="inventory-header">
       <div className="inventory-header-buttons">
         {selectedItem && (
-          <span className="inventory-selected-hint">Seleccionado: {selectedItem.nombre}</span>
+          <span className="inventory-selected-hint">
+            Seleccionado: {selectedItem.nombre}
+          </span>
         )}
+
         <Button variant="primary" onClick={onNewItem}>
           + Nuevo Artículo
         </Button>
-        <Button variant="primary" onClick={onNewLoan} disabled={!selectedItem}>
+
+        <Button
+          variant="primary"
+          onClick={onNewLoan}
+          disabled={!selectedItem}
+        >
           + Nuevo Préstamo
+        </Button>
+
+        <Button
+          variant="primary"
+          onClick={() => selectedItem && onEditItem(selectedItem)}
+          disabled={!selectedItem}
+        >
+          Editar
+        </Button>
+
+        <Button
+          variant="primary"
+          onClick={() => selectedItem && onDeleteItem(selectedItem)}
+          disabled={!selectedItem}
+        >
+          Eliminar
         </Button>
       </div>
     </div>
+
     <DataTable
       columns={[
         { key: 'nombre', label: 'Nombre' },

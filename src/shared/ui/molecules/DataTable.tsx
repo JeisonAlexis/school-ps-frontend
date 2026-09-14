@@ -16,6 +16,7 @@ interface DataTableProps<TRow extends RowBase> {
   onSelect?: (row: TRow) => void;
   selectedRow?: TRow;
   emptyMessage?: string;
+  actions?: (row: TRow) => ReactNode;
 }
 
 export function DataTable<TRow extends RowBase>({
@@ -24,6 +25,7 @@ export function DataTable<TRow extends RowBase>({
   onSelect,
   selectedRow,
   emptyMessage = 'No se encontraron registros',
+  actions,
 }: DataTableProps<TRow>) {
   if (data.length === 0) {
     return (
@@ -40,6 +42,7 @@ export function DataTable<TRow extends RowBase>({
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {onSelect && <th className="w-12 px-4 py-3"></th>}
+
               {columns.map((column) => (
                 <th
                   key={column.key}
@@ -48,8 +51,15 @@ export function DataTable<TRow extends RowBase>({
                   {column.label}
                 </th>
               ))}
+
+              {actions && (
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Acciones
+                </th>
+              )}
             </tr>
           </thead>
+
           <tbody className="divide-y divide-gray-200">
             {data.map((row) => {
               const isSelected = selectedRow?.id === row.id;
@@ -57,14 +67,21 @@ export function DataTable<TRow extends RowBase>({
               return (
                 <tr
                   key={row.id}
-                  className={`hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50' : ''}`}
+                  className={`hover:bg-gray-50 transition-colors ${
+                    isSelected ? 'bg-blue-50' : ''
+                  }`}
                   onClick={() => {
                     onSelect?.(row);
                   }}
-                  style={{ cursor: onSelect ? 'pointer' : 'default' }}
+                  style={{
+                    cursor: onSelect ? 'pointer' : 'default',
+                  }}
                 >
                   {onSelect && (
-                    <td className="px-4 py-3">
+                    <td
+                      className="px-4 py-3"
+                      onClick={(event) => event.stopPropagation()}
+                    >
                       <input
                         type="radio"
                         checked={isSelected}
@@ -75,10 +92,12 @@ export function DataTable<TRow extends RowBase>({
                       />
                     </td>
                   )}
+
                   {columns.map((column) => {
                     const cellValue = row[column.key as keyof TRow];
 
                     let defaultValue: ReactNode = '';
+
                     if (
                       typeof cellValue === 'string' ||
                       typeof cellValue === 'number' ||
@@ -90,11 +109,25 @@ export function DataTable<TRow extends RowBase>({
                     }
 
                     return (
-                      <td key={column.key} className="px-4 py-3 text-sm text-gray-900">
-                        {column.render ? column.render(cellValue, row) : defaultValue}
+                      <td
+                        key={column.key}
+                        className="px-4 py-3 text-sm text-gray-900"
+                      >
+                        {column.render
+                          ? column.render(cellValue, row)
+                          : defaultValue}
                       </td>
                     );
                   })}
+
+                  {actions && (
+                    <td
+                      className="px-4 py-3 text-sm"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      {actions(row)}
+                    </td>
+                  )}
                 </tr>
               );
             })}

@@ -150,8 +150,8 @@ export const DashboardPage = () => {
         </p>
       </div>
 
-      {/* Main Banner */}
-      <div
+      
+      {/* <div
         style={{
           background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
           borderRadius: '12px',
@@ -165,7 +165,7 @@ export const DashboardPage = () => {
           justifyContent: 'space-between',
         }}
       >
-        {/* Subtle mesh background */}
+        
         <div
           style={{
             position: 'absolute',
@@ -218,7 +218,7 @@ export const DashboardPage = () => {
             <ArrowRight size={20} />
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Stats Cards Row */}
       <div
