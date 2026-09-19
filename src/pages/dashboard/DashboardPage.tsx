@@ -14,7 +14,7 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  ArrowRight,
+  // ArrowRight,
 } from 'lucide-react';
 
 export const DashboardPage = () => {
